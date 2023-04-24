@@ -7,22 +7,9 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/Testing Console/Testing Console.csproj",
+                "${workspaceFolder}/App/App.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
-            ],
-            "problemMatcher": "$msCompile"
-        },
-        {
-            "label": "build - release",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "build",
-                "${workspaceFolder}/Testing Console/Testing Console.csproj",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary",
-                "/p:Configuration=Release"
             ],
             "problemMatcher": "$msCompile"
         },
@@ -32,7 +19,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/Testing Console/Testing Console.csproj",
+                "${workspaceFolder}/App/App.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -46,7 +33,7 @@
                 "watch",
                 "run",
                 "--project",
-                "${workspaceFolder}/Testing Console/Testing Console.csproj"
+                "${workspaceFolder}/App/App.csproj"
             ],
             "problemMatcher": "$msCompile"
         }

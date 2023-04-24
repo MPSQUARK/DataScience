@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using BAVCL.Core.Interfaces;
 using BAVCL.Core;
 using ILGPU.IR.Values;
+using BAVCL.Core.Kernels.Interfaces;
+using BAVCL.Core.Kernels.Models;
 
 namespace BAVCL
 {
@@ -52,7 +54,7 @@ namespace BAVCL
 		public Action<AcceleratorStream, Index1D, ArrayView<float>, ArrayView<float>, ArrayView<float>> crossKernel;
 		public Action<AcceleratorStream, Index1D, ArrayView<float>, ArrayView<float>, int> transposekernel;
 
-
+		public Action<AcceleratorStream, Index1D, ArrayView<float>, ArrayView<float>, ArrayView<float>> pf32_add_kernel;
 
 		public Action<AcceleratorStream, Index1D, ArrayView<float>, float> LogKernel;
 		#endregion
@@ -83,13 +85,13 @@ namespace BAVCL
 		public (uint, MemoryBuffer) AllocateEmpty<T>(ICacheable cacheable, int length) where T : unmanaged => memoryManager.AllocateEmpty<T>(cacheable, length, accelerator);
 		public MemoryBuffer TryGetBuffer<T>(uint Id) where T : unmanaged => memoryManager.GetBuffer(Id);
 		public (uint, MemoryBuffer) UpdateBuffer<T>(ICacheable cacheable, T[] values) where T : unmanaged => memoryManager.UpdateBuffer(cacheable, values, accelerator);
-        public (uint, MemoryBuffer) UpdateBuffer<T>(ICacheable<T> cacheable) where T : unmanaged => memoryManager.UpdateBuffer(cacheable, accelerator);
-        public uint GCItem(uint Id) => memoryManager.GCItem(Id);
+		public (uint, MemoryBuffer) UpdateBuffer<T>(ICacheable<T> cacheable) where T : unmanaged => memoryManager.UpdateBuffer(cacheable, accelerator);
+		public uint GCItem(uint Id) => memoryManager.GCItem(Id);
 		public string PrintMemoryUsage(bool percentage, string format = "F2") => memoryManager.PrintMemoryUsage(percentage, format);
 		public string GetMemUsage() => memoryManager.MemoryUsed.ToString();
 
-        private Accelerator GetPreferedAccelerator(Context context, bool forceCPU)
-        {
+		private Accelerator GetPreferedAccelerator(Context context, bool forceCPU)
+		{
 			var devices = context.Devices;
 
 			if (devices.Length == 0) throw new Exception("No Accelerators");
@@ -105,15 +107,15 @@ namespace BAVCL
 
 				if (AcceleratorPrefOrder.TryGetValue(preferedAccelerator.AcceleratorType, out int Prefpriority))
 					if (AcceleratorPrefOrder.TryGetValue(devices[i].AcceleratorType, out int Devicepriority))
-                    {
+					{
 						if (Devicepriority > Prefpriority)
-                        {
+						{
 							preferedAccelerator = devices[i];
 							continue;
 						}
 
 						if (devices[i].MaxConstantMemory > preferedAccelerator.MaxConstantMemory)
-                        {
+						{
 							preferedAccelerator = devices[i];
 							continue;
 						}
@@ -153,11 +155,25 @@ namespace BAVCL
 			crossKernel = accelerator.LoadAutoGroupedKernel<Index1D, ArrayView<float>, ArrayView<float>, ArrayView<float>>(CrossKernel);
 			transposekernel = accelerator.LoadAutoGroupedKernel<Index1D, ArrayView<float>, ArrayView<float>, int>(TransposeKernel);
 
+			pf32_add_kernel = accelerator.LoadAutoGroupedKernel<Index1D, ArrayView<float>, ArrayView<float>, ArrayView<float>>(AVFP32_3XKern<AddFP32Kernel>);
+
+
 
 			LogKernel = accelerator.LoadAutoGroupedKernel<Index1D, ArrayView<float>, float>(LogKern);
+			
 
 			timer.Stop();
 			Console.WriteLine($"Kernels Loaded in: {timer.Elapsed.TotalMilliseconds} MS");
+		}
+
+
+		static void AVFP32_2XKern<TFunc>(Index1D index, ArrayView<float> outputView, ArrayView<float> inputView) where TFunc : struct, IFP32_2XKernel
+		{
+			outputView[index] = default(TFunc).Execute(inputView[index]);
+		}
+		static void AVFP32_3XKern<TFunc>(Index1D index, ArrayView<float> outputView, ArrayView<float> inputView1, ArrayView<float> inputView2) where TFunc : struct, IFP32_3XKernel
+		{
+			outputView[index] = default(TFunc).Execute(inputView1[index], inputView2[index]);
 		}
 
 
@@ -172,8 +188,8 @@ namespace BAVCL
 			Output[index] += sum;
 		}
 
-        #region "Kernels"
-        static void AppendKernel(Index1D index, ArrayView<float> Output, ArrayView<float> vecA, ArrayView<float> vecB, int vecAcol, int vecBcol)
+		#region "Kernels"
+		static void AppendKernel(Index1D index, ArrayView<float> Output, ArrayView<float> vecA, ArrayView<float> vecB, int vecAcol, int vecBcol)
 		{
 
 			for (int i = 0, j=0; j < vecBcol; i++)
@@ -237,7 +253,7 @@ namespace BAVCL
 					OutPut[index] = XMath.Pow(InputB[index], InputA[index]);
 					break;
 				case Operations.subtractSquare:
-					OutPut[index] = XMath.Pow((InputA[index] - InputB[index]), 2f);
+					OutPut[index] = (InputA[index]*InputA[index]) - (InputB[index]*InputB[index]);
 					break;
 
 			}
@@ -272,7 +288,7 @@ namespace BAVCL
 					IO[index] = XMath.Pow(IO[index], Input[index]);
 					break;
 				case Operations.subtractSquare:
-					IO[index] = XMath.Pow((IO[index] - Input[index]), 2f);
+					IO[index] = (IO[index] * IO[index]) - (Input[index] * Input[index]);
 					break;
 			}
 		}
@@ -306,7 +322,7 @@ namespace BAVCL
 					OutPut[index] = XMath.Pow(Scalar, Input[index]);
 					break;
 				case Operations.subtractSquare:
-					OutPut[index] = XMath.Pow((Input[index] - Scalar), 2f);
+					OutPut[index] = (Input[index] * Input[index]) - (Scalar * Scalar);
 					break;
 			}
 		}
@@ -339,7 +355,7 @@ namespace BAVCL
 					IO[index] = XMath.Pow(Scalar, IO[index]);
 					break;
 				case Operations.subtractSquare:
-					IO[index] = XMath.Pow((IO[index] - Scalar), 2f);
+					IO[index] = (IO[index] * IO[index]) - (Scalar * Scalar);
 					break;
 			}
 		}
@@ -401,7 +417,7 @@ namespace BAVCL
 				case Operations.subtractSquare:
 					for (int i = 0; i < Cols; i++)
 					{
-						OutPut[index] += XMath.Pow((InputA[i] - InputB[startidx + i]), 2f);
+						OutPut[index] += ((InputA[i] * InputA[i]) - (InputB[startidx + i] * InputB[startidx + i]));
 					}
 					break;
 
@@ -417,10 +433,10 @@ namespace BAVCL
 		static void ReverseKernel(Index1D index, ArrayView<float> IO)
 		{
 			int idx = IO.IntLength - 1 - index;
-            (IO[index], IO[idx]) = (IO[idx], IO[index]);
-        }
+			(IO[index], IO[idx]) = (IO[idx], IO[index]);
+		}
 
-        static void AbsKernel(Index1D index, ArrayView<float> IO)
+		static void AbsKernel(Index1D index, ArrayView<float> IO)
 		{
 			IO[index] = XMath.Abs(IO[index]);
 		}
@@ -472,8 +488,8 @@ namespace BAVCL
 			IO[index] = XMath.Log(IO[index],@base);
 		}
 
-        #endregion
+		#endregion
 
-    }
+	}
 
 }

@@ -15,29 +15,49 @@ namespace Testing_Console
 	[MemoryDiagnoser]
 	public class Benchmark
 	{
-
-		[Params(10, 100, 1000,10000)]
-		public int datalength;
-
-		GPU gpu;
-		float[] data;
-		Random rnd;
-
-		[GlobalSetup]
-		public void GlobalSetup()
+		[Params(10)]
+		public float val;
+		
+		[Benchmark(Baseline = true)]
+		public void MathSqrt()
 		{
-			gpu = new();
-			rnd = new(4522156);
-			data = new float[datalength];
-			for (int i = 0; i < data.Length; i++)
-				data[i] = rnd.NextSingle();
+			MathF.Sqrt(val);
 		}
-
+		
 		[Benchmark]
-		public void Create()
+		public void MySqrt()
 		{
-			Vector newVec = new Vector(gpu, data);
+			TestCls.newSQRT(val);
 		}
+		
+		[Benchmark]
+		public void MyOldSqrt()
+		{
+			TestCls.sqrt_acc_v2(val);
+		}
+
+		// [Params(10, 100, 1000,10000)]
+		// public int datalength;
+
+		// GPU gpu;
+		// float[] data;
+		// Random rnd;
+
+		// [GlobalSetup]
+		// public void GlobalSetup()
+		// {
+		// 	gpu = new();
+		// 	rnd = new(4522156);
+		// 	data = new float[datalength];
+		// 	for (int i = 0; i < data.Length; i++)
+		// 		data[i] = rnd.NextSingle();
+		// }
+
+		// [Benchmark]
+		// public void Create()
+		// {
+		// 	Vector newVec = new Vector(gpu, data);
+		// }
 
 		//[Params(2, 8, 16, 49, 100, 64, 256, 529, 165518, 5131, 123, 71645, 12.1518f)]
 		//public float val;

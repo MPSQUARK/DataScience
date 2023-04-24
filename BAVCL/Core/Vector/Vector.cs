@@ -301,6 +301,37 @@ namespace BAVCL
             return Output;
         }
 
+        internal static Vector _VecVecOP(Vector vectorA, Vector vectorB, Action<AcceleratorStream, Index1D, ArrayView<float>, ArrayView<float>, ArrayView<float>> kernel)
+        {
+            GPU gpu = vectorA.gpu;
+
+            vectorA.IncrementLiveCount();
+            vectorB.IncrementLiveCount();
+
+            // Make the Output Vector
+            Vector Output = new(gpu, vectorA.Length, vectorA.Columns);
+            Output.IncrementLiveCount();
+
+            // Check if the input & output are in Cache
+            MemoryBuffer1D<float, Stride1D.Dense>
+                buffer = Output.GetBuffer(),        // Output
+                buffer2 = vectorA.GetBuffer(),      // Input
+                buffer3 = vectorB.GetBuffer();      // Input
+
+            // Run the kernel
+            kernel(gpu.accelerator.DefaultStream, buffer.IntExtent, buffer.View, buffer2.View, buffer3.View);
+
+            // Synchronise the kernel
+            gpu.accelerator.Synchronize();
+
+            vectorA.DecrementLiveCount();
+            vectorB.DecrementLiveCount();
+            Output.DecrementLiveCount();
+
+            // Return the result
+            return Output;
+        }
+
         internal Vector _VectorVectorOP_IP(Vector vectorB, Operations operation)
         {
             vectorB.IncrementLiveCount();
