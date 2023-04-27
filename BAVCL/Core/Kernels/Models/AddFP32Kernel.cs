@@ -2,6 +2,14 @@
 
 namespace BAVCL.Core.Kernels.Models
 {
+	internal struct TestFP32Kernel : IFP32_2XKernel<float>
+	{
+		public float Execute(float x)
+		{
+			return x;
+		}
+	}
+	
 	internal struct AddFP32Kernel : IFP32_3XKernel
 	{
 		public float Execute(float x, float y)

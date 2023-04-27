@@ -1,8 +1,8 @@
 ﻿namespace BAVCL.Core.Kernels.Interfaces
 {
-	internal interface IFP32_2XKernel
+	internal interface IFP32_2XKernel<T> where T : unmanaged
 	{
-		float Execute(float x);
+		T Execute(T x);
 	}
 
 	internal interface IFP32_3XKernel

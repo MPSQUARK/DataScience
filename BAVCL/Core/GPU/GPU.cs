@@ -57,6 +57,9 @@ namespace BAVCL
 		public Action<AcceleratorStream, Index1D, ArrayView<float>, ArrayView<float>, ArrayView<float>> pf32_add_kernel;
 
 		public Action<AcceleratorStream, Index1D, ArrayView<float>, float> LogKernel;
+		
+		public Action<AcceleratorStream, Index1D, ArrayView<float>, ArrayView<float>> TestKernel;
+		
 		#endregion
 
 		
@@ -161,16 +164,26 @@ namespace BAVCL
 
 			LogKernel = accelerator.LoadAutoGroupedKernel<Index1D, ArrayView<float>, float>(LogKern);
 			
+			
+			// store mykern in a variable
+			TestKernel = accelerator.LoadAutoGroupedKernel<Index1D, ArrayView<float>, ArrayView<float>>(mykern<TestFP32Kernel, float>);
 
 			timer.Stop();
 			Console.WriteLine($"Kernels Loaded in: {timer.Elapsed.TotalMilliseconds} MS");
 		}
 
-
-		static void AVFP32_2XKern<TFunc>(Index1D index, ArrayView<float> outputView, ArrayView<float> inputView) where TFunc : struct, IFP32_2XKernel
+		static void mykern<TFunc,T1>(Index1D index, ArrayView<T1> outputView, ArrayView<T1> inputView) 
+			where T1 : unmanaged 
+			where TFunc : struct, IFP32_2XKernel<T1>
 		{
 			outputView[index] = default(TFunc).Execute(inputView[index]);
 		}
+
+
+		// static void AVFP32_2XKern<TFunc>(Index1D index, ArrayView<float> outputView, ArrayView<float> inputView) where TFunc : struct, IFP32_2XKernel
+		// {
+		// 	outputView[index] = default(TFunc).Execute(inputView[index]);
+		// }
 		static void AVFP32_3XKern<TFunc>(Index1D index, ArrayView<float> outputView, ArrayView<float> inputView1, ArrayView<float> inputView2) where TFunc : struct, IFP32_3XKernel
 		{
 			outputView[index] = default(TFunc).Execute(inputView1[index], inputView2[index]);
