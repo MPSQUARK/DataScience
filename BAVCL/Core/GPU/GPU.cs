@@ -7,9 +7,6 @@ using BAVCL.Experimental;
 using System.Collections.Generic;
 using BAVCL.Core.Interfaces;
 using BAVCL.Core;
-using ILGPU.IR.Values;
-using BAVCL.Core.Kernels.Interfaces;
-using BAVCL.Core.Kernels.Models;
 
 namespace BAVCL
 {
@@ -158,37 +155,12 @@ namespace BAVCL
 			crossKernel = accelerator.LoadAutoGroupedKernel<Index1D, ArrayView<float>, ArrayView<float>, ArrayView<float>>(CrossKernel);
 			transposekernel = accelerator.LoadAutoGroupedKernel<Index1D, ArrayView<float>, ArrayView<float>, int>(TransposeKernel);
 
-			pf32_add_kernel = accelerator.LoadAutoGroupedKernel<Index1D, ArrayView<float>, ArrayView<float>, ArrayView<float>>(AVFP32_3XKern<AddFP32Kernel>);
-
-
-
 			LogKernel = accelerator.LoadAutoGroupedKernel<Index1D, ArrayView<float>, float>(LogKern);
 			
-			
-			// store mykern in a variable
-			TestKernel = accelerator.LoadAutoGroupedKernel<Index1D, ArrayView<float>, ArrayView<float>>(mykern<TestFP32Kernel, float>);
 
 			timer.Stop();
 			Console.WriteLine($"Kernels Loaded in: {timer.Elapsed.TotalMilliseconds} MS");
 		}
-
-		static void mykern<TFunc,T1>(Index1D index, ArrayView<T1> outputView, ArrayView<T1> inputView) 
-			where T1 : unmanaged 
-			where TFunc : struct, IFP32_2XKernel<T1>
-		{
-			outputView[index] = default(TFunc).Execute(inputView[index]);
-		}
-
-
-		// static void AVFP32_2XKern<TFunc>(Index1D index, ArrayView<float> outputView, ArrayView<float> inputView) where TFunc : struct, IFP32_2XKernel
-		// {
-		// 	outputView[index] = default(TFunc).Execute(inputView[index]);
-		// }
-		static void AVFP32_3XKern<TFunc>(Index1D index, ArrayView<float> outputView, ArrayView<float> inputView1, ArrayView<float> inputView2) where TFunc : struct, IFP32_3XKernel
-		{
-			outputView[index] = default(TFunc).Execute(inputView1[index], inputView2[index]);
-		}
-
 
 		// Test Kernels
 		static void SumKernel(Index1D index, ArrayView<double> Output, ArrayView<float> Input)

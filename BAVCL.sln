@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BAVCL", "BAVCL\BAVCL.csproj", "{9BC419A9-FFE1-487D-8A2A-CE09EB24B123}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSL", "FSL\FSL.fsproj", "{D3D30E2A-F885-49C9-9494-C627D4F7E21C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +48,18 @@ Global
 		{9BC419A9-FFE1-487D-8A2A-CE09EB24B123}.Release|x64.Build.0 = Release|Any CPU
 		{9BC419A9-FFE1-487D-8A2A-CE09EB24B123}.Release|x86.ActiveCfg = Release|Any CPU
 		{9BC419A9-FFE1-487D-8A2A-CE09EB24B123}.Release|x86.Build.0 = Release|Any CPU
+		{D3D30E2A-F885-49C9-9494-C627D4F7E21C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3D30E2A-F885-49C9-9494-C627D4F7E21C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3D30E2A-F885-49C9-9494-C627D4F7E21C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D3D30E2A-F885-49C9-9494-C627D4F7E21C}.Debug|x64.Build.0 = Debug|Any CPU
+		{D3D30E2A-F885-49C9-9494-C627D4F7E21C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D3D30E2A-F885-49C9-9494-C627D4F7E21C}.Debug|x86.Build.0 = Debug|Any CPU
+		{D3D30E2A-F885-49C9-9494-C627D4F7E21C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3D30E2A-F885-49C9-9494-C627D4F7E21C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3D30E2A-F885-49C9-9494-C627D4F7E21C}.Release|x64.ActiveCfg = Release|Any CPU
+		{D3D30E2A-F885-49C9-9494-C627D4F7E21C}.Release|x64.Build.0 = Release|Any CPU
+		{D3D30E2A-F885-49C9-9494-C627D4F7E21C}.Release|x86.ActiveCfg = Release|Any CPU
+		{D3D30E2A-F885-49C9-9494-C627D4F7E21C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

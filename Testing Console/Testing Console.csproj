@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BAVCL\BAVCL.csproj" />
+    <ProjectReference Include="..\FSL\FSL.fsproj" />
   </ItemGroup>
 
 </Project>

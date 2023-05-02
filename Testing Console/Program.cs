@@ -10,16 +10,30 @@ using ILGPU.Runtime;
 using ILGPU;
 using BAVCL.Extensions;
 using BAVCL.Experimental;
+using ILGPU.Backends;
+using FSL;
 
-GPU gpu = new();
+void addfunc(float x, float y)
+{
+	Console.WriteLine(x + y);
+}
+
+//GPU gpu = new();
+KernelModule.kernels.Add(0, KernelModule.CompiledKernel.NewFloatFloat(new Action<float,float>(addfunc)));
+Console.WriteLine(KernelModule.kernels.Count);
+
+Console.WriteLine(KernelModule.getKernel(0));
+// if (KernelModule.kernels.TryGetValue(0, out KernelModule.CompiledKernel kern))
+
+// {
+// 	if (kern is KernelModule.CompiledKernel.FloatFloat floatKernel)
+// 	{
+// 		floatKernel.action(1.0f, 2.0f); // Example usage
+// 	}
+// }
 
 // run benchmarks
 //BenchmarkRunner.Run<Benchmark>();
-
-Vector a = new Vector(gpu, new float[] {6f,3f,2f});
-Vector b = Vector.test(a);
-b.Print();
-
 
 // Console.WriteLine($"MathF: {MathF.Sqrt(1.2134f)}");
 // Console.WriteLine($"My: {TestCls.newSQRT(1.2134f)}");

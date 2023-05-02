@@ -183,23 +183,6 @@ namespace BAVCL
 
 
 		#endregion
-		
-		
-		public static Vector test(Vector vectorA)
-		{
-			Vector output = new Vector(vectorA.gpu, vectorA.Length, vectorA.Columns);
-			
-			MemoryBuffer1D<float, Stride1D.Dense>
-				buffer = output.GetBuffer(),        // Output
-				buffer2 = vectorA.GetBuffer();       // Input
-				
-				
-			vectorA.gpu.TestKernel(vectorA.gpu.accelerator.DefaultStream,buffer.IntExtent, buffer.View, buffer2.View);
-			vectorA.gpu.accelerator.Synchronize();
-			return output;
-		}
-
-
 
 		// FUNCTIONS
 		public static Vector OP(Vector vectorA, Vector vectorB, Operations operation, bool Warp = false)
